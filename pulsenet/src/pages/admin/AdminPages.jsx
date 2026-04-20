@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StatCard, Card, Table, Badge, FormField, Input, Select, SectionHeader } from '../../components/ui';
 import { Users, UserCog, Building2, DollarSign, FileText, Activity, Plus, Trash2, Edit3 } from 'lucide-react';
 import { patients, staff } from '../../data/mockData';
+import BASE from '../../config';
 
  
 
@@ -12,14 +13,14 @@ export function AdminDashboard() {
 
   // 🔥 Fetch dashboard stats
   useEffect(() => {
-    fetch("http://localhost:5000/api/dashboard")
+    fetch("${BASE}/api/dashboard")
       .then(res => res.json())
       .then(setData);
   }, []);
 
   // 🔥 Fetch rooms (IMPORTANT FIX)
   useEffect(() => {
-    fetch("http://localhost:5000/api/rooms")
+    fetch("${BASE}/api/rooms")
       .then(res => res.json())
       .then(setRooms);
   }, []);
@@ -185,7 +186,7 @@ export function UserManagement() {
 
   // 🔥 Fetch staff users
   useEffect(() => {
-    fetch("http://localhost:5000/api/staff")
+    fetch("${BASE}/api/staff")
       .then(res => {
         if (!res.ok) throw new Error("API failed");
         return res.json();
@@ -205,7 +206,7 @@ export function UserManagement() {
       return;
     }
 
-    const res = await fetch("http://localhost:5000/api/signup", {
+    const res = await fetch("${BASE}/api/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -241,7 +242,7 @@ export function UserManagement() {
     setShow(false);
   };
   const deleteUser = async (id) => {
-    await fetch(`http://localhost:5000/api/user/${id}`, {
+    await fetch(`${BASE}/api/user/${id}`, {
       method: "DELETE"
     });
 
@@ -375,15 +376,15 @@ export function PatientManagement() {
   const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/admission-form")
+    fetch("${BASE}/api/admission-form")
       .then(res => res.json())
       .then(setForms);
 
-    fetch("http://localhost:5000/api/doctors")
+    fetch("${BASE}/api/doctors")
       .then(res => res.json())
       .then(setDoctors);
 
-    fetch("http://localhost:5000/api/rooms")
+    fetch("${BASE}/api/rooms")
       .then(res => res.json())
       .then(setRooms);
   }, []);
@@ -398,7 +399,7 @@ export function PatientManagement() {
       return;
     }
 
-    await fetch(`http://localhost:5000/api/admission/approve/${form._id}`, {
+    await fetch(`${BASE}/api/admission/approve/${form._id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -425,7 +426,7 @@ export function PatientManagement() {
     );
   };
   const cancelAdmission = async (form) => {
-    await fetch(`http://localhost:5000/api/admission/cancel/${form._id}`, {
+    await fetch(`${BASE}/api/admission/cancel/${form._id}`, {
       method: "DELETE"
     });
 
@@ -561,7 +562,7 @@ export function RoomManagement() {
   const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/rooms")
+    fetch("${BASE}/api/rooms")
       .then(res => res.json())
       .then(setRooms);
   }, []);
@@ -617,7 +618,7 @@ export function ChargesManagement() {
   const [newCharge, setNewCharge] = useState({ name: "", type: "", amount: "" });
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/charges")
+    fetch("${BASE}/api/charges")
       .then(res => res.json())
       .then(setCharges);
   }, []);
@@ -627,7 +628,7 @@ export function ChargesManagement() {
       alert("Fill all fields ❌");
       return;
     }
-    const res = await fetch("http://localhost:5000/api/charges/add", {
+    const res = await fetch("${BASE}/api/charges/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newCharge)
@@ -639,7 +640,7 @@ export function ChargesManagement() {
   };
 
   const deleteCharge = async (id) => {
-    await fetch(`http://localhost:5000/api/charges/${id}`, { method: "DELETE" });
+    await fetch(`${BASE}/api/charges/${id}`, { method: "DELETE" });
     setCharges(prev => prev.filter(c => c._id !== id));
   };
 
@@ -720,18 +721,18 @@ export function BillingManagement() {
   const [loadingId, setLoadingId] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/bill")
+    fetch("${BASE}/api/bill")
       .then(res => res.json())
       .then(data => {
         setBills(Array.isArray(data) ? data : []);
         // fetch summary for each unique patient
         const ids = [...new Set(data.map(b => b.patientId))];
         Promise.all(ids.map(id =>
-          fetch(`http://localhost:5000/api/bill/summary/${id}`).then(r => r.json())
+          fetch(`${BASE}/api/bill/summary/${id}`).then(r => r.json())
         )).then(results => setSummaries(results.filter(r => !r.message)));
       });
 
-    fetch("http://localhost:5000/api/charges")
+    fetch("${BASE}/api/charges")
       .then(res => res.json())
       .then(setCharges);
   }, []);
@@ -753,7 +754,7 @@ export function BillingManagement() {
       alert("Select patient and add at least one item ❌");
       return;
     }
-    const res = await fetch("http://localhost:5000/api/bill/add", {
+    const res = await fetch("${BASE}/api/bill/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...newBill, totalAmount })
@@ -761,7 +762,7 @@ export function BillingManagement() {
     const data = await res.json();
     setBills(prev => [data.data, ...prev]);
     // refresh summary
-    fetch(`http://localhost:5000/api/bill/summary/${newBill.patientId}`)
+    fetch(`${BASE}/api/bill/summary/${newBill.patientId}`)
       .then(r => r.json())
       .then(s => setSummaries(prev => {
         const filtered = prev.filter(x => x.patientId !== newBill.patientId);
@@ -775,7 +776,7 @@ export function BillingManagement() {
     setLoadingId(patientId);
     const bill = bills.find(b => b.patientId === patientId && b.status === "unpaid");
     if (bill) {
-      const res = await fetch(`http://localhost:5000/api/bill/pay/${bill._id}`, { method: "PUT" });
+      const res = await fetch(`${BASE}/api/bill/pay/${bill._id}`, { method: "PUT" });
       const data = await res.json();
       setBills(prev => prev.map(b => b._id === bill._id ? data : b));
       setSummaries(prev => prev.map(s => s.patientId === patientId ? { ...s, status: "paid" } : s));
@@ -916,7 +917,7 @@ export function AdminReports() {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/logs")
+    fetch("${BASE}/api/logs")
       .then(res => res.json())
       .then(setLogs);
   }, []);
