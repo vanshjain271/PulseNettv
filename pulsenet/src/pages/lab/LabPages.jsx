@@ -1,4 +1,5 @@
 import React from 'react';
+import BASE from '../../config';
 import { useState, useEffect } from 'react';
 import { StatCard, Card, Table, Badge, FormField, Input, SectionHeader } from '../../components/ui';
 import { TestTube2, FileText, CreditCard, Clock, CheckCircle, Upload } from 'lucide-react';
@@ -19,7 +20,7 @@ export function LabDashboard() {
   formData.append("result", form.result);
   formData.append("file", file);
 
-  await fetch("http://localhost:5000/api/report/upload", {
+  await fetch("`${BASE}/api/report/upload", {
     method: "POST",
     body: formData
   });
@@ -34,7 +35,7 @@ export function LabDashboard() {
 
   // 🔥 fetch patients
   useEffect(() => {
-    fetch("http://localhost:5000/api/admission-form")
+    fetch("`${BASE}/api/admission-form")
       .then(res => res.json())
       .then(setPatients);
   }, []);
@@ -236,3 +237,4 @@ export function LabBilling() {
     </div>
   );
 }
+

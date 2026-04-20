@@ -2,7 +2,6 @@ import { useState,useEffect } from "react";
 import React from 'react';
 import Layout from './components/layout/Layout';
 import { useRole } from './context/RoleContext';
-import Login from "./pages/Login";
 // Patient Pages
 import {
   PatientDashboard, PatientReports, PatientMedications,

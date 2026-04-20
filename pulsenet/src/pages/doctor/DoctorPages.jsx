@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import BASE from '../../config';
 import { StatCard, Card, Table, Badge, FormField, Input, Select, Textarea, SectionHeader } from '../../components/ui';
 import { Users, FileText, Activity, Stethoscope, Plus, Trash2 } from 'lucide-react';
 import { patients, vitals, prescriptions } from '../../data/mockData';
@@ -18,11 +19,11 @@ export function DoctorDashboard() {
  useEffect(() => {
   if (!doctorId) return;
 
-   fetch(`http://localhost:5000/api/admission/doctor/${doctorId}`)
+   fetch(``${BASE}/api/admission/doctor/${doctorId}`)
     .then(res => res.json())
     .then(setPatients);
 
-  fetch(`http://localhost:5000/api/medication/doctor/${doctorId}`)
+  fetch(``${BASE}/api/medication/doctor/${doctorId}`)
     .then(res => res.json())
     .then(setPrescriptions);
 
@@ -133,7 +134,7 @@ export function DoctorPatients() {
 
     if (!doctorId) return;
 
-    fetch(`http://localhost:5000/api/admission/doctor/${doctorId}`)
+    fetch(``${BASE}/api/admission/doctor/${doctorId}`)
       .then(res => res.json())
       .then(setPatients);
 
@@ -299,7 +300,7 @@ export function DoctorPrescriptions() {
   useEffect(() => {
     if (!doctorId) return;
 
-    fetch(`http://localhost:5000/api/admission/doctor/${doctorId}`)
+    fetch(``${BASE}/api/admission/doctor/${doctorId}`)
       .then(res => res.json())
       .then(setPatients);
 
@@ -309,7 +310,7 @@ export function DoctorPrescriptions() {
   useEffect(() => {
     if (!doctorId) return;
 
-    fetch(`http://localhost:5000/api/medication/doctor/${doctorId}`)
+    fetch(``${BASE}/api/medication/doctor/${doctorId}`)
       .then(res => res.json())
       .then(setPrescriptions);
 
@@ -329,7 +330,7 @@ export function DoctorPrescriptions() {
   const handleSubmit = async () => {
 
     for (let med of medicines) {
-      await fetch("http://localhost:5000/api/medication/add", {
+      await fetch("`${BASE}/api/medication/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -351,7 +352,7 @@ export function DoctorPrescriptions() {
     alert("Prescription Added ✅");
 
     // refresh
-    fetch(`http://localhost:5000/api/medication/doctor/${doctorId}`)
+    fetch(``${BASE}/api/medication/doctor/${doctorId}`)
       .then(res => res.json())
       .then(setPrescriptions);
 
@@ -522,3 +523,4 @@ export function DoctorPrescriptions() {
     </div>
   );
 }
+

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import BASE from '../../config';
 import { StatCard, Card, Table, Badge, FormField, Input, Select, Textarea, SectionHeader } from '../../components/ui';
 import { Pill, FileText, BedDouble, CreditCard, AlertCircle, User } from 'lucide-react';
 
@@ -14,7 +15,7 @@ export function PatientDashboard() {
     const u = JSON.parse(localStorage.getItem("user"));
     setUser(u);
 
-    const BASE = "http://localhost:5000";
+    const BASE = "`${BASE}";
 
     fetch(`${BASE}/api/admission/${u.id}`)
       .then(res => res.json())
@@ -102,7 +103,7 @@ export function PatientReports() {
 
     if (!u?.id) return;
 
-    const BASE = "http://localhost:5000";
+    const BASE = "`${BASE}";
 
     fetch(`${BASE}/api/report/patient/${u.id}`) // ✅ FIXED
       .then(res => res.json())
@@ -158,7 +159,7 @@ export function PatientReports() {
 
                   {r.fileUrl ? (
                     <a
-                      href={`http://localhost:5000/uploads/${r.fileUrl}`} // ✅ FIXED
+                      href={``${BASE}/uploads/${r.fileUrl}`} // ✅ FIXED
                       target="_blank"
                       className="text-blue-500 hover:underline text-sm"
                     >
@@ -195,7 +196,7 @@ export function PatientMedications() {
 
     if (!u?.id) return; // ✅ prevent crash
 
-    const BASE = "http://localhost:5000";
+    const BASE = "`${BASE}";
 
     fetch(`${BASE}/api/medication/${u.id}`)
       .then(res => res.json())
@@ -286,7 +287,7 @@ export function AdmissionDetails() {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    fetch(`http://localhost:5000/api/admission/${user.id}`)
+    fetch(``${BASE}/api/admission/${user.id}`)
       .then(res => res.json())
       .then(data => {
 
@@ -347,7 +348,7 @@ export function AdmissionForm() {
     const user = JSON.parse(localStorage.getItem("user"));
     let isSubmitted=false;
     try {
-      await fetch(`http://localhost:5000/api/admission/${user.id}`)
+      await fetch(``${BASE}/api/admission/${user.id}`)
       .then(res => res.json())
       .then(data => {
         if (data) {
@@ -357,7 +358,7 @@ export function AdmissionForm() {
         }
       });
       if(!isSubmitted){ 
-      await fetch("http://localhost:5000/api/admission-form/add", {
+      await fetch("`${BASE}/api/admission-form/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -381,7 +382,7 @@ useEffect(() => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   if (!user?.id) return;
   
-  fetch(`http://localhost:5000/api/auth/${user.id}`)
+  fetch(``${BASE}/api/auth/${user.id}`)
     .then(res => res.json())
     .then(data => {
       setFormData(prev => ({
@@ -491,7 +492,7 @@ export function PatientBills() {
   useEffect(() => {
     const u = JSON.parse(localStorage.getItem("user"));
     setUser(u);
-    fetch(`http://localhost:5000/api/bill/summary/${u.id}`)
+    fetch(``${BASE}/api/bill/summary/${u.id}`)
       .then(res => res.json())
       .then(data => { if (!data.message) setSummary(data); });
   }, []);
@@ -549,3 +550,4 @@ export function PatientBills() {
     </div>
   );
 }
+

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import BASE from '../../config';
 import { StatCard, Card, Table, Badge, SectionHeader } from '../../components/ui';
 import { FileText, CreditCard, CheckCircle, AlertTriangle, Plus, Trash2, Edit3 } from 'lucide-react';
 
-const BASE = "http://localhost:5000";
+const BASE = "`${BASE}";
 
 /* ─────────────── Pharmacy Dashboard ─────────────── */
 export function PharmacyDashboard() {
@@ -260,3 +261,4 @@ export function PharmacyBilling() {
     </div>
   );
 }
+
