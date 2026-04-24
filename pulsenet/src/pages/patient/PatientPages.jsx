@@ -21,9 +21,9 @@ export function PatientDashboard() {
           .then(setAdmission)
           .catch(err => console.error("Admission fetch error:", err));
 
-        fetch(`${BASE}/api/bill/${u.id}`)
+        fetch(`${BASE}/api/bill/summary/${u.id}`)
           .then(res => res.json())
-          .then(setBill)
+          .then(data => setBill(data))
           .catch(err => console.error("Bill fetch error:", err));
 
         fetch(`${BASE}/api/medication/${u.id}`)
@@ -40,7 +40,7 @@ export function PatientDashboard() {
     ? Math.ceil((new Date() - new Date(admission?.admissionDate ?? new Date())) / (1000 * 60 * 60 * 24))
     : 0;
 
-  const totalBill = bill?.reduce((sum, b) => sum + (b?.amount ?? 0), 0) ?? 0;
+  const totalBill = bill?.totalAmount ?? 0;
 
   return (
     <div>
@@ -390,34 +390,79 @@ export function AdmissionForm() {
 
 /* ================= Bills ================= */
 export function PatientBills() {
-  const [bills, setBills] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const u = JSON.parse(localStorage.getItem("user") || "{}");
     if (u?.id) {
-      fetch(`${BASE}/api/bill/${u.id}`)
+      fetch(`${BASE}/api/bill/summary/${u.id}`)
         .then(res => res.json())
-        .then(setBills)
-        .catch(err => console.error("Bills fetch error:", err));
+        .then(data => {
+          setSummary(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Summary fetch error:", err);
+          setLoading(false);
+        });
     }
   }, []);
 
+  if (loading) return <p className="p-8 text-center text-slate-400">Loading billing summary...</p>;
+
   return (
-    <div>
-      <SectionHeader title="Patient Bills" />
-      <Card>
-        <Table headers={["ID", "Amount", "Status", "Date"]}>
-          {bills?.filter(Boolean).map(b => (
-            <tr key={b?._id ?? Math.random()}>
-              <td className="font-mono text-xs">{b?._id ?? "N/A"}</td>
-              <td className="font-bold">₹{b?.amount ?? 0}</td>
-              <td><Badge variant={b?.status === 'paid' ? 'green' : 'yellow'}>{b?.status ?? "Pending"}</Badge></td>
-              <td className="text-xs text-slate-500">{b?.createdAt ? new Date(b.createdAt).toLocaleDateString() : "N/A"}</td>
-            </tr>
-          ))}
-        </Table>
-        {bills.length === 0 && <p className="p-4 text-center text-slate-400">No billing records found.</p>}
-      </Card>
+    <div className="space-y-6">
+      <SectionHeader title="My Billing Summary" subtitle={summary?.status === "paid" ? "✅ All cleared" : "⏳ Outstanding Balance"} />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card title="Detailed Charges" className="lg:col-span-2">
+          <Table headers={["Description", "Category", "Amount"]}>
+            {summary?.items?.map((item, idx) => (
+              <tr key={idx}>
+                <td>
+                  <p className="font-medium text-slate-800 dark:text-slate-100">{item.description}</p>
+                  {item.note && <p className="text-[10px] text-amber-500 font-bold">{item.note}</p>}
+                </td>
+                <td>
+                  <Badge variant={item.category === 'Room' ? 'blue' : item.category === 'Pharmacy' ? 'green' : 'gray'}>
+                    {item.category}
+                  </Badge>
+                </td>
+                <td className="font-mono font-bold">₹{item.amount || 0}</td>
+              </tr>
+            ))}
+          </Table>
+          {(!summary || !summary.items || summary.items.length === 0) && (
+            <p className="p-8 text-center text-slate-400">No charges recorded for your current stay.</p>
+          )}
+        </Card>
+
+        <div className="space-y-6">
+          <Card title="Total Balance" className="bg-slate-900 text-white border-none shadow-xl">
+            <div className="p-6 text-center space-y-2">
+              <p className="text-slate-400 text-sm">Total Outstanding</p>
+              <h2 className="text-4xl font-black text-white">₹{summary?.totalAmount || 0}</h2>
+              <div className="pt-4">
+                <Badge variant={summary?.status === "paid" ? "green" : "yellow"}>
+                  {summary?.status?.toUpperCase() || "UNPAID"}
+                </Badge>
+              </div>
+            </div>
+          </Card>
+          
+          <Card title="Payment Info">
+            <div className="p-5 text-sm text-slate-500 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                  <CreditCard size={16} />
+                </div>
+                <p>Online payments are currently disabled. Please visit the accounts desk to settle your bill.</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
