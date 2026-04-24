@@ -17,26 +17,26 @@ export function NurseDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <Card title="Recent Vitals">
           <Table headers={['Patient', 'SpO2', 'Temp', 'BP', 'HR', 'Time']}>
-            {vitals.slice(0, 4).map(v => (
-              <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                <td className="table-cell font-medium">{v.patientName}</td>
-                <td className="table-cell font-mono text-sm">{v.spo2}</td>
-                <td className="table-cell font-mono text-sm">{v.temp}</td>
-                <td className="table-cell font-mono text-sm">{v.bp}</td>
-                <td className="table-cell font-mono text-sm">{v.heartRate}</td>
-                <td className="table-cell text-slate-400 text-xs">{v.time}</td>
+            {vitals?.slice(0, 4).filter(Boolean).map(v => (
+              <tr key={v?.id ?? Math.random()} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                <td className="table-cell font-medium">{v?.patientName ?? "N/A"}</td>
+                <td className="table-cell font-mono text-sm">{v?.spo2 ?? "N/A"}</td>
+                <td className="table-cell font-mono text-sm">{v?.temp ?? "N/A"}</td>
+                <td className="table-cell font-mono text-sm">{v?.bp ?? "N/A"}</td>
+                <td className="table-cell font-mono text-sm">{v?.heartRate ?? "N/A"}</td>
+                <td className="table-cell text-slate-400 text-xs">{v?.time ?? "N/A"}</td>
               </tr>
             ))}
           </Table>
         </Card>
         <Card title="Pending Medications">
           <div className="p-4 space-y-3">
-            {medications.filter(m => m.status === 'Pending').map(m => (
-              <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
+            {medications?.filter(m => (m?.status ?? "") === 'Pending').filter(Boolean).map(m => (
+              <div key={m?.id ?? Math.random()} className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
                 <Pill size={16} className="text-amber-500 shrink-0" />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{m.patientName}</p>
-                  <p className="text-xs text-slate-500">{m.medicine} · {m.dosage} · {m.time}</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{m?.patientName ?? "N/A"}</p>
+                  <p className="text-xs text-slate-500">{m?.medicine ?? "N/A"} · {m?.dosage ?? "N/A"} · {m?.time ?? "N/A"}</p>
                 </div>
                 <button className="btn-primary py-1.5 text-xs">Give</button>
               </div>
@@ -56,41 +56,41 @@ export function NursePatients() {
     return (
       <div>
         <SectionHeader
-          title={p.name}
-          subtitle={`Patient ID: ${p.id}`}
+          title={p?.name ?? "N/A"}
+          subtitle={`Patient ID: ${p?.id ?? "N/A"}`}
           action={<button onClick={() => setSelected(null)} className="btn-secondary">← Back</button>}
         />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <Card title="Personal Info">
             <div className="p-5 space-y-3">
-              {[['ID', p.id], ['Name', p.name], ['Age', p.age + ' yrs'], ['Gender', p.gender], ['Blood Group', p.bloodGroup], ['Contact', p.contact]].map(([k, v]) => (
-                <div key={k} className="flex justify-between border-b border-slate-50 dark:border-slate-700/30 pb-2 last:border-0">
-                  <span className="text-sm text-slate-400">{k}</span>
-                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{v}</span>
+              {[['ID', p?.id], ['Name', p?.name], ['Age', (p?.age ?? 0) + ' yrs'], ['Gender', p?.gender], ['Blood Group', p?.bloodGroup], ['Contact', p?.contact]]?.filter(Boolean).map(([k, v]) => (
+                <div key={k ?? Math.random()} className="flex justify-between border-b border-slate-50 dark:border-slate-700/30 pb-2 last:border-0">
+                  <span className="text-sm text-slate-400">{k ?? "N/A"}</span>
+                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{v ?? "N/A"}</span>
                 </div>
               ))}
             </div>
           </Card>
           <Card title="Admission & Diagnosis">
             <div className="p-5 space-y-3">
-              {[['Room', p.room], ['Bed', p.bed], ['Doctor', p.doctor], ['Admitted', p.admitted], ['Diagnosis', p.diagnosis], ['Status', p.status]].map(([k, v]) => (
-                <div key={k} className="flex justify-between border-b border-slate-50 dark:border-slate-700/30 pb-2 last:border-0">
-                  <span className="text-sm text-slate-400">{k}</span>
-                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{v}</span>
+              {[['Room', p?.room], ['Bed', p?.bed], ['Doctor', p?.doctor], ['Admitted', p?.admitted], ['Diagnosis', p?.diagnosis], ['Status', p?.status]]?.filter(Boolean).map(([k, v]) => (
+                <div key={k ?? Math.random()} className="flex justify-between border-b border-slate-50 dark:border-slate-700/30 pb-2 last:border-0">
+                  <span className="text-sm text-slate-400">{k ?? "N/A"}</span>
+                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{v ?? "N/A"}</span>
                 </div>
               ))}
             </div>
           </Card>
           <Card title="Latest Vitals" className="lg:col-span-2">
             <Table headers={['SpO2', 'Temperature', 'Blood Pressure', 'Heart Rate', 'Time', 'Date']}>
-              {vitals.filter(v => v.patientId === p.id).map(v => (
-                <tr key={v.id}>
-                  <td className="table-cell font-mono">{v.spo2}</td>
-                  <td className="table-cell font-mono">{v.temp}</td>
-                  <td className="table-cell font-mono">{v.bp}</td>
-                  <td className="table-cell font-mono">{v.heartRate}</td>
-                  <td className="table-cell text-slate-400 text-xs">{v.time}</td>
-                  <td className="table-cell text-slate-400 text-xs">{v.date}</td>
+              {vitals?.filter(v => v?.patientId === p?.id).filter(Boolean).map(v => (
+                <tr key={v?.id ?? Math.random()}>
+                  <td className="table-cell font-mono">{v?.spo2 ?? "N/A"}</td>
+                  <td className="table-cell font-mono">{v?.temp ?? "N/A"}</td>
+                  <td className="table-cell font-mono">{v?.bp ?? "N/A"}</td>
+                  <td className="table-cell font-mono">{v?.heartRate ?? "N/A"}</td>
+                  <td className="table-cell text-slate-400 text-xs">{v?.time ?? "N/A"}</td>
+                  <td className="table-cell text-slate-400 text-xs">{v?.date ?? "N/A"}</td>
                 </tr>
               ))}
             </Table>
@@ -105,15 +105,15 @@ export function NursePatients() {
       <SectionHeader title="Patients" subtitle="All patients assigned to you" />
       <Card>
         <Table headers={['Patient ID', 'Name', 'Room', 'Doctor', 'Diagnosis', 'Status', '']}>
-          {patients.map(p => (
-            <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => setSelected(p.id)}>
-              <td className="table-cell font-mono text-xs text-slate-500">{p.id}</td>
-              <td className="table-cell font-semibold">{p.name}</td>
-              <td className="table-cell"><span className="font-mono text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-md">{p.room}</span></td>
-              <td className="table-cell text-slate-500">{p.doctor}</td>
-              <td className="table-cell">{p.diagnosis}</td>
+          {patients?.filter(Boolean).map(p => (
+            <tr key={p?.id ?? Math.random()} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer" onClick={() => setSelected(p?.id)}>
+              <td className="table-cell font-mono text-xs text-slate-500">{p?.id ?? "N/A"}</td>
+              <td className="table-cell font-semibold">{p?.name ?? "N/A"}</td>
+              <td className="table-cell"><span className="font-mono text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-md">{p?.room ?? "N/A"}</span></td>
+              <td className="table-cell text-slate-500">{p?.doctor ?? "N/A"}</td>
+              <td className="table-cell">{p?.diagnosis ?? "N/A"}</td>
               <td className="table-cell">
-                <Badge variant={p.status === 'Critical' ? 'red' : p.status === 'Observation' ? 'yellow' : 'green'}>{p.status}</Badge>
+                <Badge variant={(p?.status ?? "") === 'Critical' ? 'red' : (p?.status ?? "") === 'Observation' ? 'yellow' : 'green'}>{p?.status ?? "N/A"}</Badge>
               </td>
               <td className="table-cell"><button className="text-pulse-500 text-sm font-semibold">View →</button></td>
             </tr>
@@ -136,7 +136,7 @@ export function VitalsEntry() {
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Patient Name">
                 <Select>
-                  {patients.map(p => <option key={p.id}>{p.name}</option>)}
+                  {patients?.filter(Boolean).map(p => <option key={p?.id ?? Math.random()}>{p?.name ?? "N/A"}</option>)}
                 </Select>
               </FormField>
               <FormField label="Patient ID"><Input value="PT-20041" readOnly className="form-input bg-slate-50 dark:bg-slate-800" /></FormField>
@@ -154,13 +154,13 @@ export function VitalsEntry() {
 
         <Card title="Today's Vitals Log">
           <Table headers={['Patient', 'SpO2', 'BP', 'HR', 'Time']}>
-            {vitals.map(v => (
-              <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                <td className="table-cell font-medium text-xs">{v.patientName}</td>
-                <td className="table-cell font-mono text-xs">{v.spo2}</td>
-                <td className="table-cell font-mono text-xs">{v.bp}</td>
-                <td className="table-cell font-mono text-xs">{v.heartRate}</td>
-                <td className="table-cell text-xs text-slate-400">{v.time}</td>
+            {vitals?.filter(Boolean).map(v => (
+              <tr key={v?.id ?? Math.random()} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                <td className="table-cell font-medium text-xs">{v?.patientName ?? "N/A"}</td>
+                <td className="table-cell font-mono text-xs">{v?.spo2 ?? "N/A"}</td>
+                <td className="table-cell font-mono text-xs">{v?.bp ?? "N/A"}</td>
+                <td className="table-cell font-mono text-xs">{v?.heartRate ?? "N/A"}</td>
+                <td className="table-cell text-xs text-slate-400">{v?.time ?? "N/A"}</td>
               </tr>
             ))}
           </Table>
@@ -178,7 +178,7 @@ export function MedicationEntry() {
         <Card title="Record Medication">
           <div className="p-5 space-y-4">
             <FormField label="Patient Name">
-              <Select>{patients.map(p => <option key={p.id}>{p.name}</option>)}</Select>
+              <Select>{patients?.filter(Boolean).map(p => <option key={p?.id ?? Math.random()}>{p?.name ?? "N/A"}</option>)}</Select>
             </FormField>
             <FormField label="Medicine Name"><Input placeholder="e.g. Paracetamol" /></FormField>
             <FormField label="Dosage"><Input placeholder="e.g. 500mg" /></FormField>
@@ -188,13 +188,13 @@ export function MedicationEntry() {
         </Card>
         <Card title="Medication Log">
           <Table headers={['Patient', 'Medicine', 'Dosage', 'Time', 'Status']}>
-            {medications.map(m => (
-              <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                <td className="table-cell font-medium text-xs">{m.patientName}</td>
-                <td className="table-cell text-xs">{m.medicine}</td>
-                <td className="table-cell font-mono text-xs">{m.dosage}</td>
-                <td className="table-cell text-xs text-slate-400">{m.time}</td>
-                <td className="table-cell"><Badge variant={m.status === 'Given' ? 'green' : 'yellow'}>{m.status}</Badge></td>
+            {medications?.filter(Boolean).map(m => (
+              <tr key={m?.id ?? Math.random()} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                <td className="table-cell font-medium text-xs">{m?.patientName ?? "N/A"}</td>
+                <td className="table-cell text-xs">{m?.medicine ?? "N/A"}</td>
+                <td className="table-cell font-mono text-xs">{m?.dosage ?? "N/A"}</td>
+                <td className="table-cell text-xs text-slate-400">{m?.time ?? "N/A"}</td>
+                <td className="table-cell"><Badge variant={(m?.status ?? "") === 'Given' ? 'green' : 'yellow'}>{m?.status ?? "Pending"}</Badge></td>
               </tr>
             ))}
           </Table>
@@ -218,18 +218,18 @@ export function NurseTasks() {
       <SectionHeader title="My Tasks" subtitle="Today's task list" />
       <Card>
         <div className="p-5 space-y-3">
-          {tasks.map(t => (
-            <div key={t.id} className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
-              t.done ? 'border-slate-100 dark:border-slate-700 opacity-60' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/50'
+          {tasks?.filter(Boolean).map(t => (
+            <div key={t?.id ?? Math.random()} className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
+              (t?.done ?? false) ? 'border-slate-100 dark:border-slate-700 opacity-60' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/50'
             }`}>
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${t.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-500'}`}>
-                {t.done && <span className="text-xs">✓</span>}
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${(t?.done ?? false) ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-slate-500'}`}>
+                {(t?.done ?? false) && <span className="text-xs">✓</span>}
               </div>
               <div className="flex-1">
-                <p className={`text-sm font-semibold ${t.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-200'}`}>{t.task}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{t.time}</p>
+                <p className={`text-sm font-semibold ${(t?.done ?? false) ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-200'}`}>{t?.task ?? "N/A"}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{t?.time ?? "N/A"}</p>
               </div>
-              <Badge variant={t.priority === 'Urgent' ? 'red' : t.priority === 'High' ? 'yellow' : 'gray'}>{t.priority}</Badge>
+              <Badge variant={(t?.priority ?? "") === 'Urgent' ? 'red' : (t?.priority ?? "") === 'High' ? 'yellow' : 'gray'}>{t?.priority ?? "Normal"}</Badge>
             </div>
           ))}
         </div>

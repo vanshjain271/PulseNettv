@@ -26,8 +26,8 @@ export function StatCard({ title, value, subtitle, icon: Icon, color = 'blue', t
         )}
       </div>
       <div>
-        <p className="text-2xl font-bold text-slate-900 dark:text-white font-display">{value}</p>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+        <p className="text-2xl font-bold text-slate-900 dark:text-white font-display">{value ?? 0}</p>
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title ?? "N/A"}</p>
         {subtitle && <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{subtitle}</p>}
       </div>
     </div>
@@ -56,9 +56,9 @@ export function Table({ headers, children, empty = 'No data found' }) {
       <table className="w-full">
         <thead>
           <tr>
-            {headers.map((h, i) => (
+            {headers?.filter(Boolean).map((h, i) => (
               <th key={i} className="table-header first:rounded-tl-xl last:rounded-tr-xl">
-                {h}
+                {h ?? "N/A"}
               </th>
             ))}
           </tr>
@@ -93,7 +93,7 @@ export function Badge({ children, variant = 'blue' }) {
 export function FormField({ label, children }) {
   return (
     <div>
-      <label className="form-label">{label}</label>
+      <label className="form-label">{label ?? "N/A"}</label>
       {children}
     </div>
   );

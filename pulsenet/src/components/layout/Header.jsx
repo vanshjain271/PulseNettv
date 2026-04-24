@@ -45,7 +45,7 @@ export default function Header() {
     <header className="fixed top-0 left-[240px] right-0 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 flex items-center px-6 gap-4 z-20">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 flex-1">
-        <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">{meta.label}</span>
+        <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">{meta?.label ?? "N/A"}</span>
         <ChevronRight size={12} className="text-slate-300 dark:text-slate-600" />
         <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
           {PAGE_LABELS[activePage] || activePage}

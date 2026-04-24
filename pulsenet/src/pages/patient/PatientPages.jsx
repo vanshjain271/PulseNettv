@@ -37,19 +37,22 @@ export function PatientDashboard() {
   }, []);
 
   const days = admission
-    ? Math.ceil((new Date() - new Date(admission.admissionDate)) / (1000 * 60 * 60 * 24))
+    ? Math.ceil((new Date() - new Date(admission?.admissionDate ?? new Date())) / (1000 * 60 * 60 * 24))
     : 0;
 
-  const totalBill = bill.reduce((sum, b) => sum + b.amount, 0);
+  const totalBill = bill?.reduce((sum, b) => sum + (b?.amount ?? 0), 0) ?? 0;
 
   return (
     <div>
-      <SectionHeader title="My Dashboard" subtitle={`Welcome back, ${user?.fullname}`} />
+      <div className="flex items-center gap-3">
+        <SectionHeader title="My Dashboard" subtitle={`Welcome back, ${user?.fullname ?? "User"}`} />
+        <Badge variant="blue">v2.0 Live Data</Badge>
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard title="Room No." value={admission?.roomNumber} icon={BedDouble} />
-        <StatCard title="Doctor" value={admission?.doctorName} icon={User} />
-        <StatCard title="Days" value={days} icon={AlertCircle} />
+        <StatCard title="Room No." value={admission?.roomNumber ?? "N/A"} icon={BedDouble} />
+        <StatCard title="Doctor" value={admission?.doctorName ?? "N/A"} icon={User} />
+        <StatCard title="Days" value={days ?? 0} icon={AlertCircle} />
         <StatCard title="Bill" value={`₹${totalBill}`} icon={CreditCard} />
       </div>
     </div>
@@ -67,7 +70,7 @@ export function PatientReports() {
 
       fetch(`${BASE}/api/report/patient/${u.id}`)
         .then(res => res.json())
-        .then(setReports)
+        .then(data => setReports(Array.isArray(data) ? data : []))
         .catch(err => console.error("Reports fetch error:", err));
     } catch (err) {
       console.error("User parse error:", err);
@@ -79,14 +82,14 @@ export function PatientReports() {
       <SectionHeader title="My Reports" />
       <Card>
         <Table headers={["Patient", "Test", "Date", "Status", "Report"]}>
-          {reports.map(r => (
-            <tr key={r._id}>
-              <td>{r.patientId}</td>
-              <td>{r.testName}</td>
-              <td>{new Date(r.createdAt).toLocaleDateString()}</td>
-              <td><Badge>{r.status}</Badge></td>
+          {reports?.filter(Boolean).map(r => (
+            <tr key={r?._id ?? Math.random()}>
+              <td>{r?.patientId ?? "N/A"}</td>
+              <td>{r?.testName ?? "N/A"}</td>
+              <td>{r?.createdAt ? new Date(r.createdAt).toLocaleDateString() : "N/A"}</td>
+              <td><Badge>{r?.status ?? "N/A"}</Badge></td>
               <td>
-                {r.fileUrl && (
+                {r?.fileUrl && (
                   <a href={`${BASE}/uploads/${r.fileUrl}`} target="_blank" rel="noreferrer">
                     View PDF
                   </a>
@@ -95,6 +98,7 @@ export function PatientReports() {
             </tr>
           ))}
         </Table>
+        {reports.length === 0 && <p className="p-4 text-center text-slate-400">No laboratory reports found.</p>}
       </Card>
     </div>
   );
@@ -102,11 +106,33 @@ export function PatientReports() {
 
 /* ================= Medications ================= */
 export function PatientMedications() {
+  const [meds, setMeds] = useState([]);
+
+  useEffect(() => {
+    const u = JSON.parse(localStorage.getItem("user") || "{}");
+    if (u?.id) {
+      fetch(`${BASE}/api/medication/${u.id}`)
+        .then(res => res.json())
+        .then(setMeds)
+        .catch(err => console.error("Meds fetch error:", err));
+    }
+  }, []);
+
   return (
     <div>
       <SectionHeader title="Patient Medications" />
       <Card>
-        <p className="p-4">Medications page working ✅</p>
+        <Table headers={["Medicine", "Dosage", "Time", "Status"]}>
+          {meds?.filter(Boolean).map(m => (
+            <tr key={m?._id ?? Math.random()}>
+              <td>{m?.medicineName ?? "N/A"}</td>
+              <td>{m?.dosage ?? "N/A"}</td>
+              <td>{m?.time ?? "N/A"}</td>
+              <td><Badge>{m?.status ?? "Pending"}</Badge></td>
+            </tr>
+          ))}
+        </Table>
+        {meds.length === 0 && <p className="p-4 text-center text-slate-400">No medications prescribed yet.</p>}
       </Card>
     </div>
   );
@@ -114,11 +140,50 @@ export function PatientMedications() {
 
 /* ================= Admission Details ================= */
 export function AdmissionDetails() {
+  const [admission, setAdmission] = useState(null);
+
+  useEffect(() => {
+    const u = JSON.parse(localStorage.getItem("user") || "{}");
+    if (u?.id) {
+      fetch(`${BASE}/api/admission/${u.id}`)
+        .then(res => res.json())
+        .then(setAdmission)
+        .catch(err => console.error("Admission fetch error:", err));
+    }
+  }, []);
+
   return (
     <div>
       <SectionHeader title="Admission Details" />
       <Card>
-        <p className="p-4">Admission details page working ✅</p>
+        {admission ? (
+          <div className="p-5 space-y-4 text-slate-800 dark:text-slate-100">
+             <div className="grid grid-cols-2 gap-4">
+               <div>
+                 <p className="text-xs text-slate-500">Patient ID</p>
+                 <p className="font-semibold">{admission?.patientId ?? "N/A"}</p>
+               </div>
+               <div>
+                 <p className="text-xs text-slate-500">Room Number</p>
+                 <p className="font-semibold">{admission?.roomNumber ?? "N/A"}</p>
+               </div>
+               <div>
+                 <p className="text-xs text-slate-500">Doctor</p>
+                 <p className="font-semibold">{admission?.doctorName ?? "N/A"}</p>
+               </div>
+               <div>
+                 <p className="text-xs text-slate-500">Admission Date</p>
+                 <p className="font-semibold">{admission?.admissionDate ? new Date(admission.admissionDate).toLocaleDateString() : "N/A"}</p>
+               </div>
+             </div>
+             <div>
+               <p className="text-xs text-slate-500">Chief Complaint</p>
+               <p className="font-semibold">{admission?.chiefComplaint ?? "N/A"}</p>
+             </div>
+          </div>
+        ) : (
+          <p className="p-4 text-center text-slate-400">No active admission records found.</p>
+        )}
       </Card>
     </div>
   );
@@ -130,7 +195,12 @@ export function AdmissionForm() {
     <div>
       <SectionHeader title="Admission Form" />
       <Card>
-        <p className="p-4">Admission form page working ✅</p>
+        <div className="p-8 text-center space-y-4">
+          <p className="text-slate-500">Admission request feature coming soon. Please contact the administrator for new admissions.</p>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 text-blue-500">
+            <AlertCircle size={24} />
+          </div>
+        </div>
       </Card>
     </div>
   );
@@ -138,11 +208,33 @@ export function AdmissionForm() {
 
 /* ================= Bills ================= */
 export function PatientBills() {
+  const [bills, setBills] = useState([]);
+
+  useEffect(() => {
+    const u = JSON.parse(localStorage.getItem("user") || "{}");
+    if (u?.id) {
+      fetch(`${BASE}/api/bill/${u.id}`)
+        .then(res => res.json())
+        .then(setBills)
+        .catch(err => console.error("Bills fetch error:", err));
+    }
+  }, []);
+
   return (
     <div>
       <SectionHeader title="Patient Bills" />
       <Card>
-        <p className="p-4">Billing page working ✅</p>
+        <Table headers={["ID", "Amount", "Status", "Date"]}>
+          {bills?.filter(Boolean).map(b => (
+            <tr key={b?._id ?? Math.random()}>
+              <td className="font-mono text-xs">{b?._id ?? "N/A"}</td>
+              <td className="font-bold">₹{b?.amount ?? 0}</td>
+              <td><Badge variant={b?.status === 'paid' ? 'green' : 'yellow'}>{b?.status ?? "Pending"}</Badge></td>
+              <td className="text-xs text-slate-500">{b?.createdAt ? new Date(b.createdAt).toLocaleDateString() : "N/A"}</td>
+            </tr>
+          ))}
+        </Table>
+        {bills.length === 0 && <p className="p-4 text-center text-slate-400">No billing records found.</p>}
       </Card>
     </div>
   );

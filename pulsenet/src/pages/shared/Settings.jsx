@@ -16,15 +16,15 @@ export default function SettingsPage() {
         <Card title="Profile Settings">
           <div className="p-5 space-y-4">
             <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 mb-4">
-              <div className={`w-14 h-14 rounded-2xl ${meta.color} flex items-center justify-center text-white text-xl font-bold`}>
-                {meta.user.split(' ').map(n => n[0]).join('').slice(0, 2)}
+              <div className={`w-14 h-14 rounded-2xl ${meta?.color ?? "bg-blue-500"} flex items-center justify-center text-white text-xl font-bold`}>
+                {(meta?.user ?? "").split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2)}
               </div>
               <div>
-                <p className="font-bold text-slate-900 dark:text-white">{meta.user}</p>
-                <p className="text-sm text-slate-400">{meta.label} · {meta.id}</p>
+                <p className="font-bold text-slate-900 dark:text-white">{meta?.user ?? "N/A"}</p>
+                <p className="text-sm text-slate-400">{meta?.label ?? "N/A"} · {meta?.id ?? "N/A"}</p>
               </div>
             </div>
-            <FormField label="Full Name"><Input defaultValue={meta.user} /></FormField>
+            <FormField label="Full Name"><Input defaultValue={meta?.user ?? ""} /></FormField>
             <FormField label="Email"><Input type="email" defaultValue="user@pulsenet.in" /></FormField>
             <FormField label="Phone"><Input defaultValue="+91 98765 43210" /></FormField>
             <button className="btn-primary">Save Changes</button>
@@ -53,9 +53,9 @@ export default function SettingsPage() {
 
           <Card title="Notifications">
             <div className="p-5 space-y-3">
-              {['New alerts', 'Task reminders', 'System updates', 'Reports ready'].map((n, i) => (
+              {['New alerts', 'Task reminders', 'System updates', 'Reports ready']?.filter(Boolean).map((n, i) => (
                 <div key={n} className="flex items-center justify-between py-2">
-                  <span className="text-sm text-slate-700 dark:text-slate-300">{n}</span>
+                  <span className="text-sm text-slate-700 dark:text-slate-300">{n ?? "N/A"}</span>
                   <button className={`relative w-10 h-5 rounded-full transition-colors ${i % 2 === 0 ? 'bg-pulse-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
                     <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${i % 2 === 0 ? 'left-5' : 'left-0.5'}`} />
                   </button>
