@@ -13,16 +13,18 @@ export function AdminDashboard() {
 
   // 🔥 Fetch dashboard stats
   useEffect(() => {
-    fetch("${BASE}/api/dashboard")
+    fetch(`${BASE}/api/dashboard`)
       .then(res => res.json())
-      .then(setData);
+      .then(setData)
+      .catch(err => console.error("Dashboard fetch error:", err));
   }, []);
 
   // 🔥 Fetch rooms (IMPORTANT FIX)
   useEffect(() => {
-    fetch("${BASE}/api/rooms")
+    fetch(`${BASE}/api/rooms`)
       .then(res => res.json())
-      .then(setRooms);
+      .then(setRooms)
+      .catch(err => console.error("Rooms fetch error:", err));
   }, []);
 
   // 🔥 Stats
@@ -186,7 +188,7 @@ export function UserManagement() {
 
   // 🔥 Fetch staff users
   useEffect(() => {
-    fetch("${BASE}/api/staff")
+    fetch(`${BASE}/api/staff`)
       .then(res => {
         if (!res.ok) throw new Error("API failed");
         return res.json();
@@ -206,7 +208,7 @@ export function UserManagement() {
       return;
     }
 
-    const res = await fetch("${BASE}/api/signup", {
+    const res = await fetch(`${BASE}/api/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -376,17 +378,17 @@ export function PatientManagement() {
   const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
-    fetch("${BASE}/api/admission-form")
-      .then(res => res.json())
-      .then(setForms);
-
-    fetch("${BASE}/api/doctors")
-      .then(res => res.json())
-      .then(setDoctors);
-
-    fetch("${BASE}/api/rooms")
-      .then(res => res.json())
-      .then(setRooms);
+    Promise.all([
+      fetch(`${BASE}/api/admission-form`).then(res => res.json()),
+      fetch(`${BASE}/api/doctors`).then(res => res.json()),
+      fetch(`${BASE}/api/rooms`).then(res => res.json())
+    ])
+    .then(([forms, doctors, rooms]) => {
+      setForms(forms);
+      setDoctors(doctors);
+      setRooms(rooms);
+    })
+    .catch(err => console.error("PatientManagement fetch error:", err));
   }, []);
   const approve = async (form) => {
     if (!form.selectedDoctor) {
@@ -562,9 +564,10 @@ export function RoomManagement() {
   const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
-    fetch("${BASE}/api/rooms")
+    fetch(`${BASE}/api/rooms`)
       .then(res => res.json())
-      .then(setRooms);
+      .then(setRooms)
+      .catch(err => console.error("Rooms fetch error:", err));
   }, []);
   return (
     <div>
@@ -618,9 +621,10 @@ export function ChargesManagement() {
   const [newCharge, setNewCharge] = useState({ name: "", type: "", amount: "" });
 
   useEffect(() => {
-    fetch("${BASE}/api/charges")
+    fetch(`${BASE}/api/charges`)
       .then(res => res.json())
-      .then(setCharges);
+      .then(setCharges)
+      .catch(err => console.error("Charges fetch error:", err));
   }, []);
 
   const addCharge = async () => {
@@ -628,7 +632,7 @@ export function ChargesManagement() {
       alert("Fill all fields ❌");
       return;
     }
-    const res = await fetch("${BASE}/api/charges/add", {
+    const res = await fetch(`${BASE}/api/charges/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newCharge)
@@ -721,20 +725,20 @@ export function BillingManagement() {
   const [loadingId, setLoadingId] = useState(null);
 
   useEffect(() => {
-    fetch("${BASE}/api/bill")
-      .then(res => res.json())
-      .then(data => {
-        setBills(Array.isArray(data) ? data : []);
-        // fetch summary for each unique patient
-        const ids = [...new Set(data.map(b => b.patientId))];
-        Promise.all(ids.map(id =>
-          fetch(`${BASE}/api/bill/summary/${id}`).then(r => r.json())
-        )).then(results => setSummaries(results.filter(r => !r.message)));
-      });
-
-    fetch("${BASE}/api/charges")
-      .then(res => res.json())
-      .then(setCharges);
+    Promise.all([
+      fetch(`${BASE}/api/bill`).then(res => res.json()),
+      fetch(`${BASE}/api/charges`).then(res => res.json())
+    ])
+    .then(([billsData, chargesData]) => {
+      setBills(Array.isArray(billsData) ? billsData : []);
+      setCharges(chargesData);
+      
+      const ids = [...new Set(billsData.map(b => b.patientId))];
+      Promise.all(ids.map(id =>
+        fetch(`${BASE}/api/bill/summary/${id}`).then(r => r.json())
+      )).then(results => setSummaries(results.filter(r => !r.message)));
+    })
+    .catch(err => console.error("Billing fetch error:", err));
   }, []);
 
   const addItem = () => setNewBill(prev => ({ ...prev, items: [...prev.items, { description: "", amount: "" }] }));
@@ -754,7 +758,7 @@ export function BillingManagement() {
       alert("Select patient and add at least one item ❌");
       return;
     }
-    const res = await fetch("${BASE}/api/bill/add", {
+    const res = await fetch(`${BASE}/api/bill/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...newBill, totalAmount })
@@ -917,9 +921,10 @@ export function AdminReports() {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    fetch("${BASE}/api/logs")
+    fetch(`${BASE}/api/logs`)
       .then(res => res.json())
-      .then(setLogs);
+      .then(setLogs)
+      .catch(err => console.error("Logs fetch error:", err));
   }, []);
 
   return (
