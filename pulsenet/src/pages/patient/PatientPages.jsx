@@ -44,7 +44,10 @@ export function PatientDashboard() {
 
   return (
     <div>
-      <SectionHeader title="My Dashboard" subtitle={`Welcome back, ${user?.fullname ?? "User"}`} />
+      <div className="flex items-center gap-3">
+        <SectionHeader title="My Dashboard" subtitle={`Welcome back, ${user?.fullname ?? "User"}`} />
+        <Badge variant="blue">v2.0 Live Data</Badge>
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard title="Room No." value={admission?.roomNumber ?? "N/A"} icon={BedDouble} />
