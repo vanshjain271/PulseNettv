@@ -21,8 +21,21 @@ export const ROLE_META = {
 };
 
 export function RoleProvider({ children }) {
-  const [role, setRole] = useState(ROLES.ADMIN);
+  const [role, setRole] = useState(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    return user.role || ROLES.PATIENT;
+  });
   const [activePage, setActivePage] = useState('dashboard');
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  
+  // Custom metadata based on logged in user
+  const meta = {
+    label: role?.charAt(0).toUpperCase() + role?.slice(1),
+    color: role === 'admin' ? 'bg-rose-500' : role === 'doctor' ? 'bg-pulse-500' : 'bg-blue-500',
+    user: user.fullname || "N/A",
+    id: user.id || "N/A"
+  };
 
   const switchRole = (newRole) => {
     setRole(newRole);
@@ -30,7 +43,7 @@ export function RoleProvider({ children }) {
   };
 
   return (
-    <RoleContext.Provider value={{ role, activePage, setActivePage, switchRole }}>
+    <RoleContext.Provider value={{ role, activePage, setActivePage, switchRole, meta }}>
       {children}
     </RoleContext.Provider>
   );

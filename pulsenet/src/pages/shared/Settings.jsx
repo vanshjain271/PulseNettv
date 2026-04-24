@@ -1,13 +1,12 @@
 import React from 'react';
 import { Card, FormField, Input, Select, SectionHeader } from '../../components/ui';
 import { useTheme } from '../../context/ThemeContext';
-import { useRole, ROLE_META } from '../../context/RoleContext';
+import { useRole } from '../../context/RoleContext';
 import { Sun, Moon } from 'lucide-react';
 
 export default function SettingsPage() {
   const { dark, toggle } = useTheme();
-  const { role } = useRole();
-  const meta = ROLE_META[role];
+  const { role, meta } = useRole();
 
   return (
     <div>
