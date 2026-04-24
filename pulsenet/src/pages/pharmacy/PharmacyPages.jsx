@@ -19,11 +19,11 @@ export function PharmacyDashboard() {
 
       <Card>
         <Table headers={['Patient', 'Medicine', 'Status']}>
-          {meds.map(m => (
-            <tr key={m._id}>
-              <td>{m.patientId}</td>
-              <td>{m.medicineName}</td>
-              <td><Badge>{m.status}</Badge></td>
+          {meds?.filter(Boolean).map(m => (
+            <tr key={m?._id ?? Math.random()}>
+              <td>{m?.patientId ?? "N/A"}</td>
+              <td>{m?.medicineName ?? "N/A"}</td>
+              <td><Badge>{m?.status ?? "N/A"}</Badge></td>
             </tr>
           ))}
         </Table>

@@ -67,9 +67,9 @@ export function LabDashboard() {
                 }
               >
                 <option value="">Select Patient</option>
-                {patients.map(p => (
-                  <option key={p._id} value={p.patientId}>
-                    {p.patientId}
+                {patients?.filter(Boolean).map(p => (
+                  <option key={p?._id ?? Math.random()} value={p?.patientId ?? "N/A"}>
+                    {p?.patientId ?? "N/A"}
                   </option>
                 ))}
               </select>
@@ -122,29 +122,29 @@ export function LabDashboard() {
               </tr>
             )}
 
-            {reports.map(r => (
-              <tr key={r._id} className="hover:bg-slate-50">
+            {reports?.filter(Boolean).map(r => (
+              <tr key={r?._id ?? Math.random()} className="hover:bg-slate-50">
 
                 <td className="table-cell font-semibold">
-                  {r.patientId}
+                  {r?.patientId ?? "N/A"}
                 </td>
 
                 <td className="table-cell">
-                  {r.testName}
+                  {r?.testName ?? "N/A"}
                 </td>
 
                 <td className="table-cell text-xs text-slate-500">
-                  {r.result || "-"}
+                  {r?.result ?? "-"}
                 </td>
 
                 <td className="table-cell">
                   <Badge variant="green">
-                    {r.status}
+                    {r?.status ?? "N/A"}
                   </Badge>
                 </td>
 
                 <td className="table-cell text-xs text-slate-400">
-                  {new Date(r.createdAt).toLocaleDateString()}
+                  {r?.createdAt ? new Date(r.createdAt).toLocaleDateString() : "N/A"}
                 </td>
 
               </tr>
@@ -170,16 +170,16 @@ export function LabReports() {
       <SectionHeader title="Lab Reports" action={<button className="btn-primary flex items-center gap-2"><Upload size={14} /> Upload Report</button>} />
       <Card>
         <Table headers={['Report ID', 'Patient', 'Test', 'Date', 'Status', 'Actions']}>
-          {reports.map(r => (
-            <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-              <td className="table-cell font-mono text-xs">{r.id}</td>
+          {reports?.filter(Boolean).map(r => (
+            <tr key={r?.id ?? Math.random()} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+              <td className="table-cell font-mono text-xs">{r?.id ?? "N/A"}</td>
               <td className="table-cell">
-                <p className="font-semibold text-sm">{r.patient}</p>
-                <p className="text-xs text-slate-400">{r.pid}</p>
+                <p className="font-semibold text-sm">{r?.patient ?? "N/A"}</p>
+                <p className="text-xs text-slate-400">{r?.pid ?? "N/A"}</p>
               </td>
-              <td className="table-cell">{r.test}</td>
-              <td className="table-cell text-xs text-slate-400">{r.date}</td>
-              <td className="table-cell"><Badge variant="green">{r.status}</Badge></td>
+              <td className="table-cell">{r?.test ?? "N/A"}</td>
+              <td className="table-cell text-xs text-slate-400">{r?.date ?? "N/A"}</td>
+              <td className="table-cell"><Badge variant="green">{r?.status ?? "N/A"}</Badge></td>
               <td className="table-cell flex gap-2">
                 <button className="text-pulse-500 text-xs font-semibold">View</button>
                 <span className="text-slate-300">|</span>
@@ -217,18 +217,18 @@ export function LabBilling() {
       </div>
       <Card>
         <Table headers={['Bill ID', 'Patient', 'Test Name', 'Amount', 'Status', 'Action']}>
-          {labBills.map(b => (
-            <tr key={b.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-              <td className="table-cell font-mono text-xs">{b.id}</td>
+          {labBills?.filter(Boolean).map(b => (
+            <tr key={b?.id ?? Math.random()} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+              <td className="table-cell font-mono text-xs">{b?.id ?? "N/A"}</td>
               <td className="table-cell">
-                <p className="font-semibold text-sm">{b.patient}</p>
-                <p className="text-xs text-slate-400">{b.pid}</p>
+                <p className="font-semibold text-sm">{b?.patient ?? "N/A"}</p>
+                <p className="text-xs text-slate-400">{b?.pid ?? "N/A"}</p>
               </td>
-              <td className="table-cell">{b.test}</td>
-              <td className="table-cell font-mono font-bold">₹{b.amount}</td>
-              <td className="table-cell"><Badge variant={b.status === 'Paid' ? 'green' : 'yellow'}>{b.status}</Badge></td>
+              <td className="table-cell">{b?.test ?? "N/A"}</td>
+              <td className="table-cell font-mono font-bold">₹{b?.amount ?? 0}</td>
+              <td className="table-cell"><Badge variant={(b?.status ?? 'Pending') === 'Paid' ? 'green' : 'yellow'}>{b?.status ?? "Pending"}</Badge></td>
               <td className="table-cell">
-                {b.status === 'Pending' && <button className="btn-primary py-1.5 text-xs">Collect Payment</button>}
+                {(b?.status ?? 'Pending') === 'Pending' && <button className="btn-primary py-1.5 text-xs">Collect Payment</button>}
               </td>
             </tr>
           ))}

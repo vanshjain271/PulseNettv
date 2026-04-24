@@ -1,149 +1,164 @@
 import React, { useState, useEffect } from 'react';
 import BASE from '../../config';
-import { StatCard, Card, Table, Badge, SectionHeader } from '../../components/ui';
-import { BedDouble, CreditCard, AlertCircle, User } from 'lucide-react';
+import { Card, Table, Badge, SectionHeader } from '../../components/ui';
 
-/* ================= Dashboard ================= */
+/* ================= DASHBOARD ================= */
 export function PatientDashboard() {
   const [admission, setAdmission] = useState(null);
   const [bill, setBill] = useState([]);
   const [meds, setMeds] = useState([]);
-  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
-    try {
-      const u = JSON.parse(localStorage.getItem("user") || "{}");
-      setUser(u);
+    if (!user?.id) return;
 
-      if (u?.id) {
-        fetch(`${BASE}/api/admission/${u.id}`)
-          .then(res => res.json())
-          .then(setAdmission)
-          .catch(err => console.error("Admission fetch error:", err));
+    Promise.all([
+      fetch(`${BASE}/api/admission/${user.id}`).then(r => r.json()),
+      fetch(`${BASE}/api/bill/${user.id}`).then(r => r.json()),
+      fetch(`${BASE}/api/medication/${user.id}`).then(r => r.json())
+    ])
+      .then(([ad, bills, medications]) => {
+        setAdmission(ad);
+        setBill(bills || []);
+        setMeds(medications || []);
+      })
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
 
-        fetch(`${BASE}/api/bill/${u.id}`)
-          .then(res => res.json())
-          .then(setBill)
-          .catch(err => console.error("Bill fetch error:", err));
-
-        fetch(`${BASE}/api/medication/${u.id}`)
-          .then(res => res.json())
-          .then(setMeds)
-          .catch(err => console.error("Meds fetch error:", err));
-      }
-    } catch (err) {
-      console.error("User parse error:", err);
-    }
   }, []);
 
-  const days = admission
-    ? Math.ceil((new Date() - new Date(admission.admissionDate)) / (1000 * 60 * 60 * 24))
-    : 0;
-
-  const totalBill = bill.reduce((sum, b) => sum + b.amount, 0);
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div>
-      <SectionHeader title="My Dashboard" subtitle={`Welcome back, ${user?.fullname}`} />
+      <SectionHeader title="Patient Dashboard" />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard title="Room No." value={admission?.roomNumber} icon={BedDouble} />
-        <StatCard title="Doctor" value={admission?.doctorName} icon={User} />
-        <StatCard title="Days" value={days} icon={AlertCircle} />
-        <StatCard title="Bill" value={`₹${totalBill}`} icon={CreditCard} />
-      </div>
-    </div>
-  );
-}
-
-/* ================= Reports ================= */
-export function PatientReports() {
-  const [reports, setReports] = useState([]);
-
-  useEffect(() => {
-    try {
-      const u = JSON.parse(localStorage.getItem("user") || "{}");
-      if (!u?.id) return;
-
-      fetch(`${BASE}/api/report/patient/${u.id}`)
-        .then(res => res.json())
-        .then(setReports)
-        .catch(err => console.error("Reports fetch error:", err));
-    } catch (err) {
-      console.error("User parse error:", err);
-    }
-  }, []);
-
-  return (
-    <div>
-      <SectionHeader title="My Reports" />
       <Card>
-        <Table headers={["Patient", "Test", "Date", "Status", "Report"]}>
-          {reports.map(r => (
-            <tr key={r._id}>
-              <td>{r.patientId}</td>
-              <td>{r.testName}</td>
-              <td>{new Date(r.createdAt).toLocaleDateString()}</td>
-              <td><Badge>{r.status}</Badge></td>
-              <td>
-                {r.fileUrl && (
-                  <a href={`${BASE}/uploads/${r.fileUrl}`} target="_blank" rel="noreferrer">
-                    View PDF
-                  </a>
-                )}
-              </td>
-            </tr>
-          ))}
-        </Table>
+        <p>Room: {admission?.roomNumber ?? "N/A"}</p>
+        <p>Doctor: {admission?.doctorName ?? "N/A"}</p>
+        <p>Total Bills: ₹{bill?.reduce((a, b) => a + (b?.amount ?? 0), 0) ?? 0}</p>
+        <p>Medications: {meds?.length ?? 0}</p>
       </Card>
     </div>
   );
 }
 
-/* ================= Medications ================= */
+/* ================= MEDICATIONS ================= */
 export function PatientMedications() {
+  const [meds, setMeds] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    fetch(`${BASE}/api/medication/${user.id}`)
+      .then(r => r.json())
+      .then(setMeds)
+      .catch(console.error);
+  }, []);
+
   return (
-    <div>
-      <SectionHeader title="Patient Medications" />
-      <Card>
-        <p className="p-4">Medications page working ✅</p>
-      </Card>
-    </div>
+    <Card>
+      <SectionHeader title="My Medications" />
+      <Table headers={["Medicine", "Status"]}>
+        {meds?.filter(Boolean).map(m => (
+          <tr key={m?._id ?? Math.random()}>
+            <td>{m?.medicineName ?? "N/A"}</td>
+            <td><Badge>{m?.status ?? "N/A"}</Badge></td>
+          </tr>
+        ))}
+      </Table>
+    </Card>
   );
 }
 
-/* ================= Admission Details ================= */
+/* ================= ADMISSION ================= */
 export function AdmissionDetails() {
+  const [data, setData] = useState(null);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    fetch(`${BASE}/api/admission/${user.id}`)
+      .then(r => r.json())
+      .then(setData);
+  }, []);
+
   return (
-    <div>
+    <Card>
       <SectionHeader title="Admission Details" />
-      <Card>
-        <p className="p-4">Admission details page working ✅</p>
-      </Card>
-    </div>
+      {data ? (
+        <>
+          <p>Room: {data?.roomNumber ?? "N/A"}</p>
+          <p>Doctor: {data?.doctorName ?? "N/A"}</p>
+          <p>Diagnosis: {data?.diagnosis ?? "N/A"}</p>
+        </>
+      ) : <p>No admission found</p>}
+    </Card>
   );
 }
 
-/* ================= Admission Form ================= */
+/* ================= FORM ================= */
 export function AdmissionForm() {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = {
+      patientId: user?.id ?? "N/A",
+      roomNumber: e.target.room?.value ?? "",
+      diagnosis: e.target.diagnosis?.value ?? ""
+    };
+
+    await fetch(`${BASE}/api/admission`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    });
+
+    alert("Submitted!");
+  };
+
   return (
-    <div>
+    <Card>
       <SectionHeader title="Admission Form" />
-      <Card>
-        <p className="p-4">Admission form page working ✅</p>
-      </Card>
-    </div>
+      <form onSubmit={handleSubmit}>
+        <input name="room" placeholder="Room" required />
+        <input name="diagnosis" placeholder="Diagnosis" required />
+        <button type="submit">Submit</button>
+      </form>
+    </Card>
   );
 }
 
-/* ================= Bills ================= */
+/* ================= BILLS ================= */
 export function PatientBills() {
+  const [bills, setBills] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    fetch(`${BASE}/api/bill/${user.id}`)
+      .then(r => r.json())
+      .then(setBills);
+  }, []);
+
   return (
-    <div>
-      <SectionHeader title="Patient Bills" />
-      <Card>
-        <p className="p-4">Billing page working ✅</p>
-      </Card>
-    </div>
+    <Card>
+      <SectionHeader title="My Bills" />
+      <Table headers={["Amount", "Date"]}>
+        {bills?.filter(Boolean).map(b => (
+          <tr key={b?._id ?? Math.random()}>
+            <td>₹{b?.amount ?? 0}</td>
+            <td>{b?.createdAt ? new Date(b.createdAt).toLocaleDateString() : "N/A"}</td>
+          </tr>
+        ))}
+      </Table>
+    </Card>
   );
 }

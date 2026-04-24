@@ -25,7 +25,7 @@ const app = express();
 
 // middleware
 app.use(cors({
-  origin: ["http://localhost:5173", "https://pulse-nett-lipa.vercel.app", /\.vercel\.app$/],
+  origin: ["https://pulse-nett-lipa.vercel.app", /\.vercel\.app$/],
   credentials: true
 }));
 app.use(express.json());
@@ -43,6 +43,9 @@ mongoose.connect(process.env.MONGO_URI)
 
 
 
+app.use("/api", adminRoutes);
+app.use("/api/auth", authRoutes);
+
 app.use("/api/patient", patientRoutes);
 app.use("/api/report", reportRoutes);
 app.use("/api/bill", billRoutes);
@@ -55,10 +58,8 @@ app.use("/api/logs", activityLogRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/medicine-prices", medicinePriceRoutes);
 // app.use("/api/payment", paymentRoutes);
-app.use("/api/auth", authRoutes);
+
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-app.use("/api", adminRoutes);
-app.use("/api", authRoutes);
 console.log("AdmissionForm route loaded");
 // start server
 const PORT = 5000;

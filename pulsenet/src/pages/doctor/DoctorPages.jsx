@@ -31,11 +31,11 @@ export function DoctorDashboard() {
 
       <Card title="My Patients">
         <Table headers={['Patient', 'Room', 'Diagnosis']}>
-          {patients.map(p => (
-            <tr key={p._id}>
-              <td>{p.patientId}</td>
-              <td>{p.roomNumber}</td>
-              <td>{p.diagnosis}</td>
+          {patients?.filter(Boolean).map(p => (
+            <tr key={p?._id ?? Math.random()}>
+              <td>{p?.patientId ?? "N/A"}</td>
+              <td>{p?.roomNumber ?? "N/A"}</td>
+              <td>{p?.diagnosis ?? "N/A"}</td>
             </tr>
           ))}
         </Table>
